@@ -1,0 +1,28 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<header>
+  <div><Icon name="question" width={24} height={22.24} /></div>
+  <div><Icon name="cover-shuffle-logo" width={84} height={59.229} /></div>
+  <div class="iconGroup">
+    <Icon name="settings" width={24} height={22.24} />
+    <Icon name="user" width={24} height={22.24} />
+  </div>
+</header>
+
+<style>
+  header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: top;
+    margin: var(--spacing-spacing-md) 0;
+  }
+
+  .iconGroup {
+    display: inline-flex;
+    align-items: top;
+    gap: var(--spacing-spacing-md);
+  }
+</style>
