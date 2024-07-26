@@ -1,0 +1,147 @@
+---
+import { Icon } from "astro-icon/components";
+import Layout from "../../layouts/Layout.astro";
+import Button from "../../components/Button.astro";
+---
+
+<Layout title="Spiel-Home">
+  <div id="overlay" class="overlay">
+    <div class="overlay-content">
+      <div class="headline">Runde 1 / 3</div>
+      <div class="subline">
+        Klicken Sie auf das Albumcover und sortieren Sie die Alben mithilfe der Pfeile in die richtige Reihen-folge nach
+        <span class="whiteText">Erscheinungsjahr: vorne das neueste, hinten das älteste. </span>
+        <div class="centerButton">
+          <Button id="gameButton" buttonText="spielen" url="#" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="introText">
+    <div class="headline">Runde 1 / 3</div>
+    <div class="subline">Sortieren Sie nach dem <span class="whiteText">Erscheinungsjahr!</span></div>
+  </div>
+  <div class="category"></div>
+  <div class="timer">
+    <Icon name="next" width={48} height={48} />
+
+    <span id="minutes">02</span>:<span id="seconds">00</span>
+  </div>
+</Layout>
+
+<style>
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* ensures overlay is on top */
+    visibility: hidden;
+  }
+
+  .overlay-content {
+    display: flex;
+    width: 366px;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+
+  .introText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-15);
+    margin-bottom: var(--spacing-spacing-md);
+  }
+
+  .headline {
+    color: var(--colour-text-primary);
+    leading-trim: both;
+    text-edge: cap;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 120%; /* 28.8px */
+    letter-spacing: 0.36px;
+  }
+
+  .subline {
+    color: var(--colour-text-secondary, #aeaeae);
+    leading-trim: both;
+    text-edge: cap;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+  }
+
+  .whiteText {
+    color: var(--colour-text-primary);
+  }
+
+  .centerButton {
+    display: flex;
+    justify-content: center;
+  }
+
+  .timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: normal;
+    letter-spacing: 2px;
+    color: var(--colour-text-primary);
+    leading-trim: both;
+    text-edge: cap;
+  }
+</style>
+
+<script>
+  let timerInterval: number | undefined;
+  let minutes = 1;
+  let seconds = 59;
+
+  function tick() {
+    if (seconds === 0) {
+      if (minutes === 0) {
+        clearInterval(timerInterval);
+        alert("Time's up!");
+      } else {
+        minutes--;
+        seconds = 59;
+      }
+    } else {
+      seconds--;
+    }
+
+    document.getElementById("minutes")!.textContent = String(minutes).padStart(2, "0");
+    document.getElementById("seconds")!.textContent = String(seconds).padStart(2, "0");
+  }
+
+  function startTimer() {
+    timerInterval = setInterval(tick, 1000);
+  }
+
+  window.addEventListener("load", function (_event: Event): void {
+    const overlay = document.getElementById("overlay");
+    const button = document.getElementById("gameButton");
+
+    overlay!.style.visibility = "visible";
+
+    button!.addEventListener("click", (_event: MouseEvent) => {
+      overlay!.style.visibility = "hidden";
+
+      startTimer();
+    });
+  });
+</script>
