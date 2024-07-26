@@ -10,13 +10,17 @@ const { headline = "", years = "", image } = Astro.props;
 import { Picture } from "astro:assets";
 ---
 
-<div>
+<div class="playlistItem">
   <Picture class="cover" src={image} formats={["avif", "webp"]} alt="" />
   <div class="headline">{headline}</div>
   <div class="years">{years}</div>
 </div>
 
 <style>
+  .playlistItem {
+    width: 106px;
+  }
+
   .cover {
     border-radius: var(--radius-radius-rounded);
   }
