@@ -1,12 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { Picture } from "astro:assets";
-import CoverShuffle from "../assets/cover-shuffle.png";
+import ArdLogin from "../assets/ardlogin.png";
 ---
 
-<Layout title="Wilkommen zum Cover Shuffle">
+<Layout title="ARD Login">
   <div class="container">
-    <Picture class="cover" src={CoverShuffle} formats={["avif", "webp"]} alt="" />
+    <Picture class="cover" src={ArdLogin} formats={["avif", "webp"]} alt="" />
     <a class="button" href="/gamestart">Jetzt loslegen</a>
   </div>
 </Layout>
@@ -33,18 +33,19 @@ import CoverShuffle from "../assets/cover-shuffle.png";
 
   .button {
     position: absolute;
-    bottom: 4rem;
+    bottom: 12rem;
     left: 50%;
     transform: translateX(-50%);
     border-radius: 128px;
-    background: #ffe500;
+    background: #96b0f5;
     height: 40px;
-    width; auto;
-    padding: 12px 24px;
+    width: 250px;
+    padding: 8px 24px;
     text-decoration: none;
     color: #1a0e38;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-weight: 700;
   }
 </style>
