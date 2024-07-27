@@ -2,35 +2,53 @@
 import { Icon } from "astro-icon/components";
 import Layout from "../../layouts/Layout.astro";
 import Button from "../../components/Button.astro";
+import ThreeJoker from "../../components/HeaderItems/ThreeJoker.astro";
 ---
 
 <Layout title="Spiel-Home">
+  <ThreeJoker slot="left-headercol" />
+
   <div id="overlay" class="overlay">
     <div class="overlay-content">
       <div class="headline">Runde 1 / 3</div>
       <div class="subline">
         Klicken Sie auf das Albumcover und sortieren Sie die Alben mithilfe der Pfeile in die richtige Reihen-folge nach
         <span class="whiteText">Erscheinungsjahr: vorne das neueste, hinten das älteste. </span>
-        <div class="centerButton">
-          <Button id="gameButton" buttonText="spielen" url="#" />
-        </div>
+      </div>
+      <div class="centerButton">
+        <Button id="gameButton" buttonText="spielen" url="#" />
       </div>
     </div>
   </div>
+  <div id="overlay2" class="overlay2">
+    <div class="overlay2-content">
+      <Icon name="clock" width={200} height={200} />
+      <div class="headline">00:00</div>
+      <div class="subline">Zeit ist abgelaufen!</div>
+      <div class="centerButton">
+        <Button buttonText="weiter" url="/results/result-one-false" />
+      </div>
+    </div>
+  </div>
+
   <div class="introText">
     <div class="headline">Runde 1 / 3</div>
     <div class="subline">Sortieren Sie nach dem <span class="whiteText">Erscheinungsjahr!</span></div>
   </div>
   <div class="category"></div>
   <div class="timer">
-    <Icon name="next" width={48} height={48} />
-
+    <Icon name="clock" width={48} height={48} />
     <span id="minutes">02</span>:<span id="seconds">00</span>
+
+    <div class="finishButton">
+      <Button url="/results/result-one" />
+    </div>
   </div>
 </Layout>
 
 <style>
-  .overlay {
+  .overlay,
+  .overlay2 {
     position: fixed;
     top: 0;
     left: 0;
@@ -45,7 +63,8 @@ import Button from "../../components/Button.astro";
     visibility: hidden;
   }
 
-  .overlay-content {
+  .overlay-content,
+  .overlay2-content {
     display: flex;
     width: 366px;
     flex-direction: column;
@@ -89,11 +108,17 @@ import Button from "../../components/Button.astro";
   .centerButton {
     display: flex;
     justify-content: center;
+    margin-top: var(--spacing-spacing-md);
+  }
+
+  .finishButton {
+    margin-left: var(--spacing-spacing-md);
   }
 
   .timer {
+    padding: 24px 20px 23px 112px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     font-size: 40px;
     font-style: normal;
@@ -110,12 +135,13 @@ import Button from "../../components/Button.astro";
   let timerInterval: any | undefined;
   let minutes = 1;
   let seconds = 59;
+  const overlay2 = document.getElementById("overlay2");
 
   function tick() {
     if (seconds === 0) {
       if (minutes === 0) {
         clearInterval(timerInterval);
-        alert("Time's up!");
+        overlay2!.style.visibility = "visible";
       } else {
         minutes--;
         seconds = 59;
@@ -134,9 +160,11 @@ import Button from "../../components/Button.astro";
 
   window.addEventListener("load", function (_event: Event): void {
     const overlay = document.getElementById("overlay");
+
     const button = document.getElementById("gameButton");
 
     overlay!.style.visibility = "visible";
+    overlay2!.style.visibility = "hidden";
 
     button!.addEventListener("click", (_event: MouseEvent) => {
       overlay!.style.visibility = "hidden";

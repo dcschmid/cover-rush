@@ -3,9 +3,12 @@ import { Picture } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import PopRockCover from "../assets/category/poprock-big.png";
 import Button from "../components/Button.astro";
+import ThreeJoker from "../components/HeaderItems/ThreeJoker.astro";
 ---
 
 <Layout title="Spiel-Home">
+  <ThreeJoker slot="left-headercol" />
+
   <div class="introText">
     <div class="headline">PopRock gewählt!</div>
     <div class="subline">Lassen Sie die Energie fließen und rocken Sie mit!</div>
@@ -90,5 +93,7 @@ import Button from "../components/Button.astro";
 
   .centerButton {
     display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-spacing-md);
   }
 </style>
