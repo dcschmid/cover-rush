@@ -1,0 +1,51 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Picture } from "astro:assets";
+import ArdLogin from "../assets/ardlogin.png";
+---
+
+<Layout title="ARD Login">
+  <div class="container">
+    <Picture class="cover" src={ArdLogin} formats={["avif", "webp"]} alt="" />
+    <a class="button" href="/loadingscreen">Jetzt loslegen</a>
+  </div>
+</Layout>
+
+<style>
+  .container {
+    position: relative;
+  }
+
+  .cover {
+    width: 100%;
+    height: auto;
+  }
+
+  .introText {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    right: 50%;
+    text-align: center;
+    width: 75%;
+  }
+
+  .button {
+    position: absolute;
+    bottom: 10rem;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 128px;
+    background: #96b0f5;
+    height: 40px;
+    width: 250px;
+    padding: 8px 24px;
+    text-decoration: none;
+    color: #1a0e38;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+  }
+</style>
