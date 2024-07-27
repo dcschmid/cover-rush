@@ -146,6 +146,7 @@ import ThreeJoker from "../../components/HeaderItems/ThreeJoker.astro";
 
     if (timeRemaining === 0) {
       clearInterval(timerInterval!);
+      overlay2!.style.visibility = "visible";
     } else {
       timeRemaining--;
     }
