@@ -2,29 +2,28 @@
 import { Icon } from "astro-icon/components";
 import Layout from "../../layouts/Layout.astro";
 import { Picture } from "astro:assets";
-import FleetwoodMacCover from "../../assets/solutionscover/fleetwoodmac.png";
+import DavidBowieCover from "../../assets/bandcover/davidBowie.jpg";
 import Button from "../../components/Button.astro";
 ---
 
-<Layout title="Spiel-Home">
+<Layout title="Trivia Runde 3 – Solution">
   <div slot="left-headercol"></div>
 
   <div class="solution">
     <div class="cover">
-      <Picture src={FleetwoodMacCover} width={240} height={240} formats={["avif", "webp"]} alt="" />
+      <Picture src={DavidBowieCover} width={240} height={240} formats={["avif", "webp"]} alt="" />
       <Icon class="share" name="share" width={48} height={48} />
     </div>
-    <div class="headline">Fleetwood Mac – Rumours</div>
+    <div class="headline">Hunky Dory – David Bowie</div>
     <div class="text">
-      Das Album „Rumours“ von Fleetwood Mac, das vom Rolling Stone als siebtbestes Album aller Zeiten ausgezeichnet
-      wurde, erlebte ein Revival durch ein virales TikTok-Video. In dem Video fährt ein Mann entspannt auf einem
-      Skateboard in den Sonnenuntergang, während er aus einer Saftpackung trinkt und der Song „Dreams“ im Hintergrund
-      spielt.
+      David Bowie nannte seinen Sohn, den Regisseur Duncan Jones, „Zowie“, weshalb dieser auch als Zowie Bowie bekannt
+      ist. Duncan kam 1971, im Erscheinsungsjahr des Albums „Hunky Dory“, auf die Welt – Deshalb steht auf dem Rücken
+      der Platte die Widmung „for small Z.“.
     </div>
   </div>
 
   <div class="centerButton">
-    <Button buttonText="nächste Runde" url="/rounds/round-two" />
+    <Button buttonText="nächste Runde" url="/rounds/round-three" />
   </div>
 </Layout>
 
