@@ -341,7 +341,7 @@ import FleetWoodMacCover from "../../assets/bandcover/fleetwoodMac.jpg";
       });
     });
 
-    const moveSelection = (direction) => {
+    const moveSelection = (direction: any) => {
       if (!selectedCover) return;
       const parent = selectedCover.parentElement;
       const index = Array.from(parent.children).indexOf(selectedCover);
