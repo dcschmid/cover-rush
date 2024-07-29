@@ -50,33 +50,21 @@ import FleetWoodMacMP3 from "../../assets/mp3s/fleetwoodMac.mp3";
   <div class="smallText">Älteste</div>
 
   <div class="coverflow">
-    <div class="cover">
+    <div class="cover" data-band="SnowPatrol">
       <Picture src={SnowPatrolCover} width={266} height={266} formats={["avif", "webp"]} alt="" />
       <audio id="audio-SnowPatrol" src={SnowPatrolMP3} preload="none"></audio>
-      <div class="playButton" data-band="SnowPatrol">
-        <Icon name="play" width={20} height={20} />
-      </div>
     </div>
-    <div class="cover">
+    <div class="cover" data-band="KellyClarkson">
       <Picture src={KellyClarksonCover} width={266} height={266} formats={["avif", "webp"]} alt="" />
       <audio id="audio-KellyClarkson" src={KellyClarksonMP3} preload="none"></audio>
-      <div class="playButton" data-band="KellyClarkson">
-        <Icon name="play" width={20} height={20} />
-      </div>
     </div>
-    <div class="cover">
+    <div class="cover" data-band="NoDoubt">
       <Picture src={NoDoubtCover} width={266} height={266} formats={["avif", "webp"]} alt="" />
       <audio id="audio-NoDoubt" src={NoDoubtMP3} preload="none"></audio>
-      <div class="playButton" data-band="NoDoubt">
-        <Icon name="play" width={20} height={20} />
-      </div>
     </div>
-    <div class="cover">
+    <div class="cover" data-band="FleetWoodMac">
       <Picture src={FleetWoodMacCover} width={266} height={266} formats={["avif", "webp"]} alt="" />
       <audio id="audio-FleetWoodMac" src={FleetWoodMacMP3} preload="none"></audio>
-      <div class="playButton" data-band="FleetWoodMac">
-        <Icon name="play" width={20} height={20} />
-      </div>
     </div>
     <div class="buttons">
       <div class="arrowButton" id="up">
@@ -92,7 +80,7 @@ import FleetWoodMacMP3 from "../../assets/mp3s/fleetwoodMac.mp3";
 
   <div class="timer">
     <Icon name="clock" width={48} height={48} />
-    <span id="minutes">02</span>:<span id="seconds">00</span>
+    <span id="minutes">01</span>:<span id="seconds">00</span>
 
     <div class="finishButton">
       <Button url="/results/result-one" />
@@ -218,21 +206,6 @@ import FleetWoodMacMP3 from "../../assets/mp3s/fleetwoodMac.mp3";
     top: 7.5rem;
   }
 
-  .playButton {
-    border-radius: 100%;
-    background: var(--colour-BTN-primary);
-    cursor: pointer;
-    width: 25px;
-    height: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--colour-BTN-inverted);
-    padding: 0.25rem;
-    position: absolute;
-    bottom: -0.75rem;
-  }
-
   .buttons {
     display: inline-flex;
     align-items: center;
@@ -299,112 +272,170 @@ import FleetWoodMacMP3 from "../../assets/mp3s/fleetwoodMac.mp3";
     color: var(--colour-text-primary);
   }
 </style>
-
 <script>
-  let timeRemaining = 120;
+  let timeRemaining = 60;
   let timerInterval: number | null = null;
 
   const minutesElement = document.getElementById("minutes")!;
   const secondsElement = document.getElementById("seconds")!;
   const overlay2 = document.getElementById("overlay2");
 
+  /**
+   * Updates the timer display and checks if the timer has reached zero.
+   * If the timer has reached zero, it hides the timer overlay.
+   */
   function updateTime() {
+    // Calculate minutes and seconds from the remaining time
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
 
+    // Update the display with the formatted minutes and seconds
     minutesElement.textContent = String(minutes).padStart(2, "0");
     secondsElement.textContent = String(seconds).padStart(2, "0");
 
+    // If the timer has reached zero, hide the timer overlay and stop the timer
     if (timeRemaining === 0) {
       clearInterval(timerInterval!);
       overlay2!.style.visibility = "visible";
     } else {
+      // Otherwise, decrement the remaining time by one second
       timeRemaining--;
     }
   }
 
+  /**
+   * Starts the timer by setting an interval to call the updateTime function every second.
+   */
   function startTimer() {
+    // Set an interval to call the updateTime function every second
     timerInterval = window.setInterval(updateTime, 1000);
   }
 
-  window.addEventListener("load", function (_event: Event): void {
+  /**
+   * Initializes the overlay by setting its visibility and adding a click event listener to the game button.
+   * When the game button is clicked, it hides the overlay and starts the timer.
+   */
+  function initializeOverlay() {
+    // Get the overlay and game button elements
     const overlay = document.getElementById("overlay");
-    const button = document.getElementById("gameButton");
+    const gameButton = document.getElementById("gameButton");
 
+    // Set the visibility of the overlay and overlay2 elements
     overlay!.style.visibility = "visible";
     overlay2!.style.visibility = "hidden";
 
-    button!.addEventListener("click", (_event: MouseEvent) => {
+    // Add a click event listener to the game button
+    gameButton!.addEventListener("click", () => {
+      // Hide the overlay and start the timer
       overlay!.style.visibility = "hidden";
-
       startTimer();
     });
+  }
 
-    const playButtons = document.querySelectorAll<HTMLButtonElement>(".playButton");
+  /**
+   * Updates the state of the up and down buttons based on the currently selected cover.
+   *
+   * @param {HTMLElement} selectedCover - The currently selected cover element.
+   * @param {HTMLElement} upButton - The up button element.
+   * @param {HTMLElement} downButton - The down button element.
+   */
+  function updateButtonState(selectedCover: HTMLElement, upButton: HTMLElement, downButton: HTMLElement) {
+    // If no cover is selected, return early
+    if (!selectedCover) return;
 
-    playButtons.forEach((button) => {
-      button.addEventListener("click", (event: MouseEvent) => {
-        const band = (event.currentTarget as HTMLButtonElement).getAttribute("data-band");
-        const audioElement = document.getElementById(`audio-${band}`) as HTMLAudioElement | null;
+    // Get the parent element of the selected cover
+    const parent = selectedCover.parentElement!;
 
-        if (audioElement) {
-          audioElement.play();
-        }
-      });
-    });
+    // Get the index of the selected cover within its parent element
+    const index = Array.from(parent.children).indexOf(selectedCover);
 
-    let selectedCover: any = null;
-    const covers = document.querySelectorAll(".cover");
-    const upButton = document.getElementById("up");
-    const downButton = document.getElementById("down");
+    // If the selected cover is the first child, add the "disabled" class to the up button
+    if (index === 0) {
+      upButton.classList.add("disabled");
+    } else {
+      // Otherwise, remove the "disabled" class from the up button
+      upButton.classList.remove("disabled");
+    }
 
-    const updateButtonState = () => {
-      if (!selectedCover) return;
-      const parent = selectedCover.parentElement;
-      const index = Array.from(parent.children).indexOf(selectedCover);
+    // If the selected cover is the second to last child, add the "disabled" class to the down button
+    if (index >= parent.children.length - 3) {
+      downButton.classList.add("disabled");
+    } else {
+      // Otherwise, remove the "disabled" class from the down button
+      downButton.classList.remove("disabled");
+    }
+  }
 
-      if (index === 0) {
-        upButton!.classList.add("disabled");
-      } else {
-        upButton!.classList.remove("disabled");
-      }
+  /**
+   * Initializes the covers and sets up their event listeners.
+   */
+  function initializeCovers() {
+    // Initialize selected cover and covers elements
+    let selectedCover: HTMLElement | null = null;
+    let currentAudio: HTMLAudioElement | null = null;
+    const covers = document.querySelectorAll<HTMLElement>(".cover");
 
-      if (index === parent.children.length - 3) {
-        console.log(index, parent.children.length);
-        downButton!.classList.add("disabled");
-      } else {
-        downButton!.classList.remove("disabled");
-      }
-    };
+    // Get up and down buttons
+    const upButton = document.getElementById("up")!;
+    const downButton = document.getElementById("down")!;
 
+    // Add click event listener to each cover
     covers.forEach((cover) => {
       cover.addEventListener("click", () => {
+        // Remove selected class from previously selected cover (if any)
         if (selectedCover) {
           selectedCover.classList.remove("selected");
         }
+        // Pause the currently playing audio (if any)
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.currentTime = 0; // Reset playback to start
+        }
+
+        // Set selected cover to newly clicked cover and add selected class
         selectedCover = cover;
         selectedCover.classList.add("selected");
-        updateButtonState();
+
+        // Get the audio element associated with the selected cover
+        const band = cover.getAttribute("data-band");
+        currentAudio = document.getElementById(`audio-${band}`) as HTMLAudioElement | null;
+
+        // Play the audio if it exists
+        if (currentAudio) {
+          currentAudio.play();
+        }
+
+        // Update button state
+        updateButtonState(selectedCover, upButton, downButton);
       });
     });
 
-    const moveSelection = (direction: any) => {
+    /**
+     * Moves the selected cover in the specified direction.
+     *
+     * @param {number} direction - The direction to move the cover in. -1 for up, 1 for down.
+     */
+    function moveSelection(direction: number) {
       if (!selectedCover) return;
-      const parent = selectedCover.parentElement;
+
+      const parent = selectedCover.parentElement!;
       const index = Array.from(parent.children).indexOf(selectedCover);
       const newIndex = index + direction;
 
       if (newIndex >= 0 && newIndex < parent.children.length) {
-        if (direction === -1) {
-          parent.insertBefore(selectedCover, parent.children[newIndex]);
-        } else {
-          parent.insertBefore(selectedCover, parent.children[newIndex].nextSibling);
-        }
-        updateButtonState();
+        const referenceNode = direction === -1 ? parent.children[newIndex] : parent.children[newIndex].nextSibling;
+        parent.insertBefore(selectedCover, referenceNode);
+        updateButtonState(selectedCover, upButton, downButton);
       }
-    };
+    }
 
-    upButton!.addEventListener("click", () => moveSelection(-1));
-    downButton!.addEventListener("click", () => moveSelection(1));
+    // Add click event listeners to up and down buttons
+    upButton.addEventListener("click", () => moveSelection(-1));
+    downButton.addEventListener("click", () => moveSelection(1));
+  }
+
+  window.addEventListener("load", function () {
+    initializeOverlay();
+    initializeCovers();
   });
 </script>
