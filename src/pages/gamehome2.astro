@@ -52,7 +52,7 @@ import Help from "../components/HeaderItems/Help.astro";
   }
 
   .subline {
-    color: var(--colour-text-secondary, #aeaeae);
+    color: var(--colour-text-secondary);
     leading-trim: both;
     text-edge: cap;
     font-size: 16px;
@@ -78,12 +78,12 @@ import Help from "../components/HeaderItems/Help.astro";
   }
 
   .hint {
+    color: var(--colour-text-primary);
     display: flex;
-    align-items: center;
+    align-items: top;
     margin-top: var(--spacing-spacing-md);
-    color: var(--colour-text-secondary);
-    border-top: 2px solid var(--colour-border-disabled, #686868);
-    border-bottom: 2px solid var(--colour-border-disabled, #686868);
+    border-top: 2px solid var(--colour-border-disabled);
+    border-bottom: 2px solid var(--colour-border-disabled);
     padding: var(--spacing-spacing-xxs) 0;
   }
 
