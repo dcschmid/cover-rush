@@ -15,7 +15,7 @@ import { Icon } from "astro-icon/components";
       <div class="name">Hallo <span class="yellowName">Mika</span>!</div>
       <div class="points">
         <Icon class="coin" name="coin" width={24} height={24} />
-        1000 Pt
+        <span class="pointsValue"></span>
       </div>
     </div>
 
@@ -27,10 +27,10 @@ import { Icon } from "astro-icon/components";
       <div class="frames">
         <div class="frameItem whiteBackground">
           <Icon class="newIcon2" name="new-button" width={48} height={48} />
-          <Icon name="rocket-black" width={48} height={48} />
+          <Icon name="brain-dark" width={48} height={48} />
         </div>
         <div class="frameItem goldBackground">
-          <Icon name="brain" width={48} height={48} />
+          <Icon name="rocket" width={48} height={48} />
         </div>
         <div class="frameItem whiteBackground">
           <Icon name="microphone" width={48} height={48} />
@@ -53,7 +53,7 @@ import { Icon } from "astro-icon/components";
         <div class="goldenlpsItem">
           <div class="lpGroup">
             <Icon name="golden-lp" width={80} height={80} />
-            <Icon class="absIcon" name="brain" width={48} height={48} />
+            <Icon class="absIcon" name="rocket" width={48} height={48} />
           </div>
           <div class="lpText">Brit Pop</div>
           <div class="lpData">90er Jahre</div>
@@ -68,7 +68,7 @@ import { Icon } from "astro-icon/components";
           <div class="lpGroup">
             <Icon class="newIcon" name="new-button" width={48} height={48} />
             <Icon name="golden-lp" width={70} height={70} />
-            <Icon class="absIcon" name="rocket" width={48} height={48} />
+            <Icon class="absIcon" name="brain" width={48} height={48} />
           </div>
           <div class="lpText">PopRock</div>
           <div class="lpData">70er - heute</div>
@@ -280,3 +280,10 @@ import { Icon } from "astro-icon/components";
     left: -1rem;
   }
 </style>
+
+<script>
+  window.addEventListener("load", function () {
+    const userPoints = localStorage.getItem("userPoints") || "0";
+    document!.querySelector(".pointsValue")!.textContent = userPoints + " Pt";
+  });
+</script>
