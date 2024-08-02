@@ -161,6 +161,8 @@ const randomizedTriviaData = shuffleArray(triviaThreeData);
   function handleWonClick() {
     clearInterval(timerInterval!);
 
+    localStorage.setItem("triviaRound3Won", String("true"));
+
     // Open the overlayWon overlay
     overlayTimeUp.style.visibility = "hidden";
 
@@ -178,12 +180,14 @@ const randomizedTriviaData = shuffleArray(triviaThreeData);
       // Open the overlayWonLP overlay
       overlayWonLPBrain!.style.visibility = "visible";
       jsConfetti.addConfetti().then(() => jsConfetti.clearCanvas());
-      localStorage.setItem("WonPopBrain", String("true"));
+      localStorage.setItem("WonPopRockBrain", String("true"));
+      localStorage.setItem("WonBrainFrame", String("true"));
     } else {
       // Open the overlayWon overlay
       overlayWonLP!.style.visibility = "visible";
       jsConfetti.addConfetti().then(() => jsConfetti.clearCanvas());
-      localStorage.setItem("WonPopBrain", String("false"));
+      localStorage.setItem("WonPopRockBrain", String("false"));
+      localStorage.setItem("WonBrainFrame", String("false"));
     }
 
     /**
@@ -197,8 +201,6 @@ const randomizedTriviaData = shuffleArray(triviaThreeData);
       ? overlayWonLP!.querySelector(".point")
       : overlayWonLPBrain!.querySelector(".point");
     pointsDiv!.textContent = `+ ${pointsRound3} Pt`;
-
-    localStorage.setItem("triviaRound3Won", String("true"));
 
     calculateTheCurrentPoints();
   }
