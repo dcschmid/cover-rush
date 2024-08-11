@@ -1,0 +1,17 @@
+[
+    {
+        "id": 1,
+        "name": "PopRock",
+        "slug": "poprock",
+        "introSubline": "Lassen Sie die Energie fließen und rocken Sie mit!",
+        "categoryImage": "/category/poprock.png",
+        "categoryHeadline": "PopRock – 70er bis heute",
+        "categoryText": "Poprock vereint die eingängigen Melodien des Pop mit der Energie des Rock. Dieser Stil bringt emotionale Balladen und mitreißende Hits hervor, geprägt von vielseitigen Künstlern und Bands.",
+        "rounds": [1, 2, 3]
+    },
+    {
+        "id": 1,
+        "name": "Gothic",
+        "slug": "gothic"
+    }
+]
