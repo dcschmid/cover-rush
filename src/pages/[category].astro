@@ -1,9 +1,9 @@
 ---
 import { Picture } from "astro:assets";
-import Layout from "../../layouts/Layout.astro";
-import Button from "../../components/Shared/Button.astro";
-import IntroText from "../../components/Shared/IntroText.astro";
-import categories from "../../json/categories.json";
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Shared/Button.astro";
+import IntroText from "../components/Shared/IntroText.astro";
+import categories from "../json/categories.json";
 
 const { category } = Astro.params;
 
@@ -19,7 +19,7 @@ if (!currentCategory) {
 
   <IntroText headline={`${currentCategory?.name} gewählt!`} subline={currentCategory?.introSubline} />
 
-  <div class="category">
+  <div class="category" data-category={currentCategory?.slug}>
     <div class="cover">
       <Picture
         src={currentCategory?.categoryImage as string}
@@ -36,7 +36,7 @@ if (!currentCategory) {
   </div>
 
   <div class="centerButton">
-    <Button buttonText="weiter" url="/rounds/round-one" />
+    <Button buttonText="weiter" url=`${currentCategory?.slug}/round-one` />
   </div>
 </Layout>
 
@@ -110,10 +110,13 @@ if (!currentCategory) {
 </style>
 
 <script>
-  import { resetLocalStorage } from "../../utils/resetLocalStorage";
+  import { resetLocalStorage } from "../utils/resetLocalStorage";
 
   window.addEventListener("load", function () {
+    const categoryElement = document.querySelector(".category") as HTMLElement;
+    const categoryValue = categoryElement.getAttribute("data-category");
+
     // Reset the local storage
-    resetLocalStorage();
+    resetLocalStorage(categoryValue as string);
   });
 </script>
