@@ -10,8 +10,6 @@ export async function GET(context: APIContext): Promise<Response> {
   const state = context.url.searchParams.get("state");
   const storedState = context.cookies.get("spotify_oauth_state")?.value;
 
-  console.log(code, state, storedState);
-
   if (!code || !state || !storedState || state !== storedState) {
     return new Response(null, {
       status: 400,
@@ -21,15 +19,17 @@ export async function GET(context: APIContext): Promise<Response> {
   try {
     const tokens = await spotify.validateAuthorizationCode(code);
 
-    console.log(tokens);
-
     const spotifyUserResponse = await fetch("https://api.spotify.com/v1/me", {
       headers: {
         Authorization: `Bearer ${tokens.accessToken}`,
       },
     });
 
+    console.log(spotifyUserResponse);
+
     const spotifyUser: SpotifyUser = await spotifyUserResponse.json();
+
+    console.log(spotifyUser);
 
     // Replace this with your own DB client.
     const existingUser = await db.select().from(User).where(eq(User.provider_id, spotifyUser.id));
