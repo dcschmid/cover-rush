@@ -4,6 +4,7 @@ import HeaderSection from "@components/User/HeaderSection.astro";
 import { Icon } from "astro-icon/components";
 import { getGoldenLPs } from "@utils/db/getGoldenLPs";
 import { getTitleBasedOnDifficulty } from "@utils/getTitleBasedOnDifficulty";
+import AchievementSection from "@components/User/AchievementSection.astro";
 
 interface GoldenLP {
   difficulty: string;
@@ -21,6 +22,8 @@ const goldenLPs: Record<string, GoldenLP> = await getGoldenLPs(user?.id);
 <Layout title="Benutzerprofil">
   <main class="userProfile">
     <HeaderSection />
+
+    <AchievementSection userId={user.id} />
 
     <section class="achievementsSection" aria-labelledby="achievements-title">
       <h2 id="achievements-title" class="sectionTitle">

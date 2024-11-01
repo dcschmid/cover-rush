@@ -4,6 +4,7 @@ import { When } from "@astropub/flow";
 import "@fontsource/source-sans-pro/400.css";
 import "@fontsource/source-sans-pro/700.css";
 import "@fontsource/source-sans-pro/900.css";
+import ErrorMessage from "@components/Shared/ErrorMessage.astro";
 
 interface Props {
   title: string;
@@ -89,6 +90,8 @@ const { title, showHeader = true, showHeaderIcons = true } = Astro.props;
     </When>
 
     <main>
+      <ErrorMessage />
+
       <slot />
     </main>
 

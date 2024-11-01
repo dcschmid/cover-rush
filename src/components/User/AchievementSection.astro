@@ -1,0 +1,338 @@
+---
+import { db, UserAchievement, eq, PlayerStats } from "astro:db";
+import { ACHIEVEMENTS } from "../../data/achievements";
+import type { Achievement } from "../../types/achievements";
+
+interface Props {
+  userId: string;
+}
+
+const { userId } = Astro.props;
+
+const [playerStats, userAchievements] = await db.batch([
+  db.select().from(PlayerStats).where(eq(PlayerStats.userId, userId)),
+  db.select().from(UserAchievement).where(eq(UserAchievement.userId, userId)),
+]);
+
+console.log("Player Stats:", playerStats);
+console.log("Player Achievements:", userAchievements);
+
+// Set für schnellere Lookups
+const unlockedAchievementIds = new Set(
+  userAchievements.map((ua: { achievementId: string }) => ua.achievementId),
+);
+
+// Gruppiere Achievements nach Kategorie und prüfe Bedingungen
+const achievementsByCategory = ACHIEVEMENTS.reduce(
+  (acc, achievement) => {
+    if (!acc[achievement.category]) {
+      acc[achievement.category] = [];
+    }
+
+    // Prüfe, ob das Achievement bereits freigeschaltet ist oder die Bedingung erfüllt ist
+    const isUnlocked =
+      unlockedAchievementIds.has(achievement.id) ||
+      (achievement.condition && achievement.condition(playerStats));
+
+    acc[achievement.category].push({
+      ...achievement,
+      isUnlocked,
+      unlockedAt: userAchievements.find(
+        (ua: { achievementId: string }) => ua.achievementId === achievement.id,
+      )?.unlockedAt,
+      progress: calculateProgress(achievement, playerStats), // Neue Funktion für Fortschrittsanzeige
+    });
+
+    return acc;
+  },
+  {} as Record<
+    string,
+    (Achievement & {
+      isUnlocked: boolean;
+      unlockedAt?: Date;
+      progress: number;
+    })[]
+  >,
+);
+
+// Hilfsfunktion zur Berechnung des Fortschritts
+function calculateProgress(
+  achievement: Achievement,
+  stats: typeof playerStats,
+): number {
+  if (!stats || !achievement.condition) return 0;
+
+  // Beispiele für Fortschrittsberechnung
+  switch (achievement.id) {
+    case "first_win":
+      return stats.totalGames > 0 ? 100 : 0;
+    case "perfect_game":
+      return (stats.perfectGames / 1) * 100;
+    case "speed_demon":
+      return (stats.fastAnswers / 10) * 100;
+    case "no_joker":
+      return stats.gamesWithoutJoker > 0 ? 100 : 0;
+    // Weitere Fälle für andere Achievements...
+    default:
+      return 0;
+  }
+}
+
+// Berechne Gesamtfortschritt
+const totalAchievements = ACHIEVEMENTS.length;
+const unlockedCount = unlockedAchievementIds.size;
+const progressPercentage = (unlockedCount / totalAchievements) * 100;
+---
+
+<section class="achievements-section">
+  <h2 class="section-title">Errungenschaften</h2>
+
+  <div class="progress-bar">
+    <div
+      class="progress"
+      style={`width: ${progressPercentage}%`}
+      role="progressbar"
+      aria-valuenow={progressPercentage}
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span class="progress-text">
+        {unlockedCount} von {totalAchievements} freigeschaltet
+      </span>
+    </div>
+  </div>
+
+  {
+    Object.entries(achievementsByCategory).map(([category, achievements]) => (
+      <div class="category-section">
+        <h3 class="category-title">{category}</h3>
+        <div class="achievements-grid">
+          {achievements.map((achievement) => (
+            <div
+              class={`achievement-card ${achievement.isUnlocked ? "unlocked" : "locked"}`}
+            >
+              <div class="achievement-icon">
+                {achievement.isUnlocked ? achievement.icon : "🔒"}
+              </div>
+              <div class="achievement-info">
+                <h4 class="achievement-title">
+                  {achievement.isSecret && !achievement.isUnlocked
+                    ? "???"
+                    : achievement.title}
+                </h4>
+                <p class="achievement-description">
+                  {achievement.isSecret && !achievement.isUnlocked
+                    ? "Geheimes Achievement"
+                    : achievement.description}
+                </p>
+                {/* Neue Fortschrittsanzeige */}
+                {!achievement.isUnlocked && achievement.progress > 0 && (
+                  <div class="achievement-progress">
+                    <div
+                      class="progress-bar"
+                      style={`width: ${achievement.progress}%`}
+                    >
+                      <span class="progress-text">
+                        {Math.round(achievement.progress)}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {achievement.isUnlocked && (
+                  <div class="achievement-meta">
+                    <span class="points">+{achievement.points} Punkte</span>
+                    <time
+                      class="unlock-date"
+                      datetime={achievement.unlockedAt?.toISOString()}
+                    >
+                      Freigeschaltet am{" "}
+                      {achievement.unlockedAt?.toLocaleDateString()}
+                    </time>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<style lang="scss">
+  .achievements-section {
+    padding: var(--padding-medium);
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+  .section-title {
+    font-family: var(--font-family);
+    font-size: var(--header-font-size);
+    color: var(--text-color);
+    margin-bottom: var(--padding-medium);
+    text-align: center;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 24px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--padding-large);
+    overflow: hidden;
+  }
+
+  .progress {
+    height: 100%;
+    background-color: var(--highlight-color);
+    transition: width var(--transition-speed) ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .progress-text {
+    color: var(--button-text-color);
+    font-size: calc(var(--body-font-size) * 0.9);
+    font-weight: 600;
+  }
+
+  .category-section {
+    margin-bottom: var(--padding-large);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .category-title {
+    font-family: var(--font-family);
+    font-size: calc(var(--header-font-size) * 0.8);
+    color: var(--highlight-color);
+    margin-bottom: var(--padding-medium);
+    padding-bottom: var(--padding-small);
+    border-bottom: 2px solid var(--highlight-color);
+  }
+
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--padding-medium);
+  }
+
+  .achievement-card {
+    display: flex;
+    gap: var(--padding-medium);
+    padding: var(--padding-medium);
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    transition: transform var(--transition-speed) ease;
+
+    &.locked {
+      opacity: 0.7;
+      filter: grayscale(1);
+    }
+
+    &.unlocked:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .achievement-icon {
+    font-size: 2rem;
+    min-width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .achievement-info {
+    flex: 1;
+  }
+
+  .achievement-title {
+    font-family: var(--font-family);
+    font-size: var(--body-font-size);
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: var(--padding-small);
+  }
+
+  .achievement-description {
+    font-size: calc(var(--body-font-size) * 0.9);
+    color: var(--text-color);
+    margin-bottom: var(--padding-small);
+    opacity: 0.9;
+  }
+
+  .achievement-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: calc(var(--body-font-size) * 0.8);
+    color: var(--highlight-color);
+  }
+
+  .points {
+    font-weight: 600;
+  }
+
+  .unlock-date {
+    opacity: 0.8;
+  }
+
+  // High Contrast Mode Support
+  @media (forced-colors: active) {
+    .achievement-card {
+      border: 1px solid CanvasText;
+    }
+
+    .achievement-card.unlocked {
+      border: 2px solid Highlight;
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    .achievements-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Print Styles
+  @media print {
+    .achievements-section {
+      break-inside: avoid;
+    }
+
+    .achievement-card {
+      break-inside: avoid;
+      border: 1px solid #000;
+    }
+  }
+
+  .achievement-progress {
+    margin-top: var(--padding-small);
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    height: 8px;
+    overflow: hidden;
+
+    .progress-bar {
+      height: 100%;
+      background-color: var(--highlight-color);
+      transition: width var(--transition-speed) ease-in-out;
+      position: relative;
+
+      .progress-text {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 10px;
+        color: var(--button-text-color);
+      }
+    }
+  }
+</style>

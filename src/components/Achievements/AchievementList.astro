@@ -1,0 +1,99 @@
+---
+import { ACHIEVEMENTS } from "../../data/achievements";
+import type { PlayerAchievement } from "../../types/achievements";
+
+interface Props {
+  userAchievements: PlayerAchievement[];
+}
+
+const { userAchievements } = Astro.props;
+const unlockedAchievementIds = new Set(
+  userAchievements.map((ua: PlayerAchievement) => ua.achievementId),
+);
+---
+
+<div class="achievements-container">
+  <h2>Achievements</h2>
+  <div class="achievements-grid">
+    {
+      ACHIEVEMENTS.map((achievement) => (
+        <div
+          class={`achievement-card ${unlockedAchievementIds.has(achievement.id) ? "unlocked" : "locked"}`}
+        >
+          <div class="achievement-icon">{achievement.icon}</div>
+          <div class="achievement-info">
+            <h3>
+              {unlockedAchievementIds.has(achievement.id) ||
+              !achievement.isSecret
+                ? achievement.title
+                : "???"}
+            </h3>
+            <p>
+              {unlockedAchievementIds.has(achievement.id) ||
+              !achievement.isSecret
+                ? achievement.description
+                : "Geheimes Achievement"}
+            </p>
+            <div class="achievement-points">+{achievement.points} Punkte</div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style lang="scss">
+  .achievements-container {
+    padding: var(--padding-medium);
+  }
+
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--padding-medium);
+  }
+
+  .achievement-card {
+    display: flex;
+    padding: var(--padding-medium);
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    transition: transform var(--transition-speed) ease;
+
+    &.locked {
+      opacity: 0.5;
+      filter: grayscale(1);
+    }
+
+    &.unlocked {
+      &:hover {
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .achievement-icon {
+    font-size: 2rem;
+    margin-right: var(--padding-medium);
+  }
+
+  .achievement-info {
+    flex: 1;
+
+    h3 {
+      font-size: var(--body-font-size);
+      font-weight: 600;
+      margin-bottom: var(--padding-small);
+    }
+
+    p {
+      font-size: calc(var(--body-font-size) * 0.9);
+      margin-bottom: var(--padding-small);
+    }
+  }
+
+  .achievement-points {
+    color: var(--highlight-color);
+    font-weight: 600;
+  }
+</style>

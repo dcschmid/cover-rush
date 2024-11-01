@@ -52,8 +52,6 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
 
   <GameHeadline headline={currentCategoryData?.headline} />
 
-  <ErrorMessage />
-
   <LoadingSpinner />
 
   <div
@@ -139,6 +137,64 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
     transform: scale(1.05);
     background-color: var(--button-hover-color);
   }
+
+  .achievement-notification {
+    position: fixed;
+    top: var(--padding-medium);
+    right: var(--padding-medium);
+    z-index: var(--layer-above);
+
+    display: flex;
+    align-items: center;
+    gap: var(--padding-medium);
+
+    padding: var(--padding-medium);
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+
+    animation: slideIn 0.5s ease-out;
+
+    .achievement-icon {
+      font-size: 2rem;
+    }
+
+    .achievement-info {
+      h3 {
+        color: var(--highlight-color);
+        font-size: var(--body-font-size);
+        font-weight: 600;
+        margin-bottom: var(--padding-small);
+      }
+
+      p {
+        font-size: calc(var(--body-font-size) * 0.9);
+        margin-bottom: calc(var(--padding-small) / 2);
+
+        &:last-child {
+          color: var(--highlight-color);
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .achievement-notification {
+      animation: none;
+    }
+  }
 </style>
 
 <script>
@@ -159,9 +215,15 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
   import { initializeMediaElements, updateMedia } from "@utils/game/mediaUtils";
   import { QueueManager } from "@utils/queue/queueManager";
   import { shuffleArray } from "@utils/share/shuffleArray";
+  import { AchievementSystem } from "@utils/achievements/achievementSystem";
+  import type { PlayerStats } from "../../types/achievements";
 
   document.addEventListener("DOMContentLoaded", async function () {
     QueueManager.startProcessing();
+    const achievementSystem = new AchievementSystem();
+    interface CategoryWins {
+      [key: string]: number;
+    }
 
     const scoreElement = document.querySelector(
       ".coinsCount",
@@ -199,6 +261,159 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
     const appleLink = document.getElementById(
       "apple-link",
     ) as HTMLAnchorElement;
+
+    // Tracking für schnelle Antworten
+    let fastAnswersThisGame = 0;
+    let currentStats: PlayerStats = {
+      // Basis-Statistiken
+      userId: "",
+      totalGames: 0,
+      totalPoints: 0,
+      totalCorrectAnswers: 0,
+      totalJokersUsed: 0,
+      gamesWithoutJoker: 0,
+      maxStreak: 0,
+      fastAnswers: 0,
+      perfectGames: 0,
+
+      // Zeit-basierte Stats
+      maxCorrectAnswersPerGame: 0,
+      firstGameCorrectAnswers: 0,
+      perfectWinStreak: 0,
+      fastAnswersTotal: 0,
+      ultraFastAnswers: 0,
+      earlyGames: 0,
+      eveningGames: 0,
+      eveningWins: 0, // Hinzugefügt
+      weekendGames: 0,
+      consecutiveDays: 0,
+      daysPlayedInWeek: 0,
+      perfectMonthStreak: 0,
+      lastPlayedAt: new Date(),
+      lastUpdated: new Date(),
+      firstPlayedAt: new Date(),
+
+      // Schwierigkeitsgrade
+      easyDifficultyWins: 0,
+      mediumDifficultyWins: 0,
+      hardDifficultyWins: 0,
+
+      // Kategorie-basierte Stats
+      categoryStats: {},
+      categoryWins: {},
+      uniqueGenresPlayed: 0,
+      genreFirstPlaces: 0,
+
+      // Social Stats
+      totalShares: 0,
+      followers: 0,
+      friends: 0,
+      comments: 0,
+      likedSongs: 0,
+      playlists: 0,
+      popularPlaylists: 0,
+      communityWins: 0,
+
+      // Ranglisten & Achievements
+      globalRank: 0,
+      monthsInTop10: 0,
+      unlockedAchievements: 0,
+      simultaneousRecords: 0,
+
+      // Spiel-Performance
+      bigComebacks: 0,
+      maxWinsPerDay: 0,
+      fastestWin: 0,
+      comebacks: 0,
+
+      // Saisonale Stats
+      summerGames: 0,
+      winterGames: 0,
+      holidayGames: 0,
+
+      // System-Konstanten
+      totalRecords: 0,
+      totalAchievements: 0,
+      totalGenres: 0,
+
+      // Erweiterte Stats
+      maxConsecutiveDays: 0,
+      perfectRounds: 0,
+
+      // Komplexe Statistiken
+      roundStats: {
+        total: 0,
+        perfect: 0,
+        consecutive: 0,
+        maxConsecutive: 0,
+      },
+      timeOfDayStats: {
+        morning: 0,
+        afternoon: 0,
+        evening: 0,
+        night: 0,
+        morningWins: 0,
+        afternoonWins: 0,
+        eveningWins: 0,
+        nightWins: 0,
+      },
+      streaks: {
+        current: 0,
+        max: 0,
+        dailyCurrent: 0,
+        dailyMax: 0,
+        perfectCurrent: 0,
+        perfectMax: 0,
+      },
+    };
+
+    // Hole initiale Statistiken
+    async function loadPlayerStats(userId: string) {
+      try {
+        const response = await fetch(`/api/achievements/${userId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+          }),
+        });
+
+        if (response.ok) {
+          currentStats = await response.json();
+        }
+      } catch (error) {
+        console.error("Fehler beim Laden der Statistiken:", error);
+      }
+    }
+
+    // Funktion zum Aktualisieren der Statistiken
+    async function updatePlayerStats(userId: string, stats: PlayerStats) {
+      console.log("Player Stats:", stats);
+
+      try {
+        const response = await fetch("/api/stats/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            stats,
+          }),
+        });
+
+        console.log("Player Stats Updated", response);
+
+        if (!response.ok) {
+          throw new Error("Fehler beim Speichern der Statistiken");
+        }
+      } catch (error) {
+        console.error("Fehler beim Aktualisieren der Statistiken:", error);
+        // await QueueManager.addToQueue("stats", { userId, stats });
+      }
+    }
 
     // Get the category from the question container
     const category = questionContainer.getAttribute("data-genre");
@@ -359,6 +574,12 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
       const timeTaken = (endTime - startTime) / 1000;
       let totalPoints = 0;
       let bonusPoints = 0;
+      const answerTime = Date.now() - startTime;
+
+      // Wenn Antwort unter 5 Sekunden
+      if (answerTime < 5000) {
+        fastAnswersThisGame++;
+      }
 
       if (option === correctAnswer) {
         bonusPoints = timeTaken <= 10 ? 50 : timeTaken <= 15 ? 25 : 0;
@@ -426,7 +647,154 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
       setTimeout(() => scoreElement.classList.remove("bonus"), 500);
     }
 
-    function endGame() {
+    function showAchievementNotification(achievement: any) {
+      const notification = document.createElement("div");
+      notification.className = "achievement-notification";
+      notification.innerHTML = `
+          <div class="achievement-icon">${achievement.icon}</div>
+          <div class="achievement-info">
+            <h3>Achievement freigeschaltet!</h3>
+            <p>${achievement.title}</p>
+            <p>${achievement.description}</p>
+            <p>+${achievement.points} Punkte</p>
+          </div>
+        `;
+      document.body.appendChild(notification);
+
+      // Entferne Notification nach 5 Sekunden
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+
+    async function endGame() {
+      const now = new Date();
+      const hour = now.getHours();
+      const isWeekend = [0, 6].includes(now.getDay());
+
+      // Stelle sicher, dass categoryStats immer ein Objekt ist
+      if (!currentStats.categoryStats) {
+        currentStats.categoryStats = {};
+      }
+
+      // Initialisiere die Kategorie, falls sie noch nicht existiert
+      if (!currentStats.categoryStats[categoryName || ""]) {
+        currentStats.categoryStats[categoryName || ""] = {
+          played: 0,
+          wins: 0,
+          highScore: 0,
+          perfectGames: 0,
+        };
+      }
+
+      const updatedStats: PlayerStats = {
+        ...currentStats,
+        userId: userId || "",
+        totalGames: currentStats.totalGames + 1,
+        totalCorrectAnswers: currentStats.totalCorrectAnswers + correctAnswers,
+        totalPoints: currentStats.totalPoints + score,
+        totalJokersUsed:
+          currentStats.totalJokersUsed +
+          (maxJokers - currentJokerState.jokerUsedCount),
+        gamesWithoutJoker: currentJokerState.jokerUsed
+          ? currentStats.gamesWithoutJoker
+          : currentStats.gamesWithoutJoker + 1,
+        perfectGames:
+          correctAnswers === totalRounds
+            ? currentStats.perfectGames + 1
+            : currentStats.perfectGames,
+        fastAnswers: currentStats.fastAnswers + fastAnswersThisGame,
+        maxCorrectAnswersPerGame: Math.max(
+          currentStats.maxCorrectAnswersPerGame,
+          correctAnswers,
+        ),
+        fastAnswersTotal: currentStats.fastAnswersTotal + fastAnswersThisGame,
+        earlyGames:
+          hour < 9 ? currentStats.earlyGames + 1 : currentStats.earlyGames,
+        eveningGames:
+          hour >= 18
+            ? currentStats.eveningGames + 1
+            : currentStats.eveningGames,
+        weekendGames: isWeekend
+          ? currentStats.weekendGames + 1
+          : currentStats.weekendGames,
+        lastPlayedAt: now,
+        lastUpdated: now,
+
+        // Schwierigkeitsgrad-spezifische Updates
+        easyDifficultyWins:
+          difficulty === "easy" && correctAnswers === totalRounds
+            ? currentStats.easyDifficultyWins + 1
+            : currentStats.easyDifficultyWins,
+        mediumDifficultyWins:
+          difficulty === "medium" && correctAnswers === totalRounds
+            ? currentStats.mediumDifficultyWins + 1
+            : currentStats.mediumDifficultyWins,
+        hardDifficultyWins:
+          difficulty === "hard" && correctAnswers === totalRounds
+            ? currentStats.hardDifficultyWins + 1
+            : currentStats.hardDifficultyWins,
+
+        // Kategorie-Updates mit Sicherheitsprüfungen
+        categoryStats: {
+          ...currentStats.categoryStats,
+          [categoryName || ""]: {
+            played:
+              (currentStats.categoryStats[categoryName || ""]?.played || 0) + 1,
+            wins:
+              correctAnswers === totalRounds
+                ? (currentStats.categoryStats[categoryName || ""]?.wins || 0) +
+                  1
+                : currentStats.categoryStats[categoryName || ""]?.wins || 0,
+            highScore: Math.max(
+              currentStats.categoryStats[categoryName || ""]?.highScore || 0,
+              score,
+            ),
+            perfectGames:
+              correctAnswers === totalRounds
+                ? (currentStats.categoryStats[categoryName || ""]
+                    ?.perfectGames || 0) + 1
+                : currentStats.categoryStats[categoryName || ""]
+                    ?.perfectGames || 0,
+          },
+        },
+
+        // Stelle sicher, dass categoryWins immer ein Objekt ist
+        categoryWins: {
+          ...(currentStats.categoryWins || {}),
+          [categoryName || ""]:
+            correctAnswers === totalRounds
+              ? ((currentStats.categoryWins || {})[categoryName || ""] || 0) + 1
+              : (currentStats.categoryWins || {})[categoryName || ""] || 0,
+        },
+      };
+
+      try {
+        // Prüfe Achievements
+        const unlockedAchievements = await achievementSystem.checkAchievements(
+          userId as string,
+          updatedStats,
+        );
+
+        if (unlockedAchievements.length > 0) {
+          unlockedAchievements.forEach((achievement) => {
+            showAchievementNotification(achievement);
+          });
+        }
+
+        // Speichere aktualisierte Statistiken
+        await updatePlayerStats(userId as string, updatedStats);
+
+        // Aktualisiere lokale Stats
+        currentStats = updatedStats;
+        console.log("Player Stats Updated", currentStats);
+      } catch (error) {
+        console.error("Fehler beim Beenden des Spiels:", error);
+      }
+
+      // Reset Game-spezifische Tracker
+      fastAnswersThisGame = 0;
+
       const config = {
         userId: userId || "",
         categoryName: categoryName || "",
@@ -476,6 +844,8 @@ const playerTitle = getTitleBasedOnDifficulty(difficulty || "easy");
     if (initialQuestion) {
       loadQuestion(initialQuestion.randomQuestion, initialQuestion.randomAlbum);
     }
+
+    await loadPlayerStats(userId as string);
 
     window.addEventListener("beforeunload", (e) => {
       if (QueueManager.hasUnsavedData()) {
