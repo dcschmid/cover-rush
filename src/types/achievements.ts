@@ -46,7 +46,7 @@ export interface PlayerStats {
   lastPlayedAt: Date;
   lastUpdated: Date;
   firstPlayedAt: Date;
-  
+
   // Schwierigkeitsgrade
   easyDifficultyWins: number;
   mediumDifficultyWins: number;

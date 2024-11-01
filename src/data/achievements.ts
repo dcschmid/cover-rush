@@ -101,7 +101,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: AchievementCategory.BEGINNER,
     points: 75,
     condition: (stats) =>
-    Object.values(stats.categoryWins || {}).some((wins) => wins > 0),
+      Object.values(stats.categoryWins || {}).some((wins) => wins > 0),
   },
   {
     id: "evening_player",
@@ -212,7 +212,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: AchievementCategory.INTERMEDIATE,
     points: 200,
     condition: (stats) =>
-    Object.values(stats.categoryWins || {}).some((wins) => wins >= 10),
+      Object.values(stats.categoryWins || {}).some((wins) => wins >= 10),
   },
   {
     id: "point_master",
@@ -404,7 +404,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: AchievementCategory.EXPERT,
     points: 500,
     condition: (stats) =>
-    Object.values(stats.categoryWins || {}).some((wins) => wins >= 50),
+      Object.values(stats.categoryWins || {}).some((wins) => wins >= 50),
   },
   {
     id: "points_legend",

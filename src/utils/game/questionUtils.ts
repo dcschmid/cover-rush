@@ -90,29 +90,34 @@ function setAccessibilityAttributes(elements: QuestionElements): void {
 /**
  * Erstellt die Antwortbuttons mit Event-Handlern
  */
- function createAnswerButtons(
-   question: Question,
-   album: Album,
-   optionsContainer: HTMLElement,
-   handlers: QuestionHandlers,
- ): void {
-   const shuffledOptions = shuffleArray([...question.options]);
+function createAnswerButtons(
+  question: Question,
+  album: Album,
+  optionsContainer: HTMLElement,
+  handlers: QuestionHandlers,
+): void {
+  const shuffledOptions = shuffleArray([...question.options]);
 
-   shuffledOptions.forEach((option: string) => {
-     const button = document.createElement("button");
-     button.textContent = option;
-     button.className = "button";
-     setupButtonAttributes(button, option);
+  shuffledOptions.forEach((option: string) => {
+    const button = document.createElement("button");
+    button.textContent = option;
+    button.className = "button";
+    setupButtonAttributes(button, option);
 
-     button.onclick = () =>
-       handlers.handleAnswer(option, question.correctAnswer, { trivia: question.trivia || "" }, album);
+    button.onclick = () =>
+      handlers.handleAnswer(
+        option,
+        question.correctAnswer,
+        { trivia: question.trivia || "" },
+        album,
+      );
 
-     optionsContainer.appendChild(button);
-   });
+    optionsContainer.appendChild(button);
+  });
 
-   // Keyboard Navigation
-   setupKeyboardNavigation(optionsContainer, question, album, handlers);
- }
+  // Keyboard Navigation
+  setupKeyboardNavigation(optionsContainer, question, album, handlers);
+}
 
 /**
  * Setzt die Attribute für einen Antwortbutton
@@ -129,50 +134,50 @@ function setupButtonAttributes(
 /**
  * Richtet die Keyboard-Navigation ein
  */
- function setupKeyboardNavigation(
-   optionsContainer: HTMLElement,
-   question: Question,
-   album: Album,
-   handlers: QuestionHandlers,
- ): void {
-   const options = optionsContainer.querySelectorAll<HTMLElement>("button");
+function setupKeyboardNavigation(
+  optionsContainer: HTMLElement,
+  question: Question,
+  album: Album,
+  handlers: QuestionHandlers,
+): void {
+  const options = optionsContainer.querySelectorAll<HTMLElement>("button");
 
-   options.forEach((button, index) => {
-     button.addEventListener("keydown", (e: KeyboardEvent) => {
-       switch (e.key) {
-         case "ArrowDown":
-         case "ArrowRight":
-           e.preventDefault();
-           const nextButton = options[(index + 1) % options.length];
-           nextButton.focus();
-           break;
-         case "ArrowUp":
-         case "ArrowLeft":
-           e.preventDefault();
-           const prevButton =
-             options[(index - 1 + options.length) % options.length];
-           prevButton.focus();
-           break;
-         case "Enter":
-         case " ":
-           e.preventDefault();
-           const optionText = button.textContent || "";
-           handlers.handleAnswer(
-             optionText,
-             question.correctAnswer,
-             { trivia: question.trivia || "" },
-             album,
-           );
-           break;
-       }
-     });
-   });
+  options.forEach((button, index) => {
+    button.addEventListener("keydown", (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowDown":
+        case "ArrowRight":
+          e.preventDefault();
+          const nextButton = options[(index + 1) % options.length];
+          nextButton.focus();
+          break;
+        case "ArrowUp":
+        case "ArrowLeft":
+          e.preventDefault();
+          const prevButton =
+            options[(index - 1 + options.length) % options.length];
+          prevButton.focus();
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          const optionText = button.textContent || "";
+          handlers.handleAnswer(
+            optionText,
+            question.correctAnswer,
+            { trivia: question.trivia || "" },
+            album,
+          );
+          break;
+      }
+    });
+  });
 
-   // Setze initialen Fokus
-   if (options.length > 0) {
-     options[0].focus();
-   }
- }
+  // Setze initialen Fokus
+  if (options.length > 0) {
+    options[0].focus();
+  }
+}
 
 /**
  * Schließt das Laden der Frage ab

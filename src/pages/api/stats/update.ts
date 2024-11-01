@@ -5,7 +5,6 @@ import { db, eq, PlayerStats } from "astro:db";
 export const POST: APIRoute = async ({ request }) => {
   const { userId, stats } = await request.json();
 
-
   try {
     const updatedStats = await db
       .update(PlayerStats)

@@ -1,4 +1,4 @@
-import { type MediaElements, updateMedia } from './mediaUtils';
+import { type MediaElements, updateMedia } from "./mediaUtils";
 
 interface FeedbackElements {
   feedbackElement: HTMLElement;
@@ -43,15 +43,15 @@ export function handleAnswer(
   answer: Answer,
   gameState: GameState,
   elements: FeedbackElements,
-  callbacks: AnswerCallbacks
+  callbacks: AnswerCallbacks,
 ): void {
   const { option, correctAnswer, question, album } = answer;
   const { score, startTime, mediaElements } = gameState;
-  
+
   try {
     const { totalPoints, bonusPoints } = calculatePoints(
       option === correctAnswer,
-      startTime
+      startTime,
     );
 
     // Feedback anzeigen
@@ -59,7 +59,7 @@ export function handleAnswer(
       elements.feedbackElement,
       option === correctAnswer,
       correctAnswer,
-      bonusPoints
+      bonusPoints,
     );
 
     // Score aktualisieren
@@ -76,9 +76,8 @@ export function handleAnswer(
 
     // Overlay anzeigen
     setupOverlay(elements.overlayElement, callbacks.onNextRound);
-
   } catch (error) {
-    console.error('Fehler bei der Antwortverarbeitung:', error);
+    console.error("Fehler bei der Antwortverarbeitung:", error);
   }
 }
 
@@ -105,17 +104,17 @@ function showFeedback(
   feedbackElement: HTMLElement,
   isCorrect: boolean,
   correctAnswer: string,
-  bonusPoints: number
+  bonusPoints: number,
 ) {
-  feedbackElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+  feedbackElement.classList.add(isCorrect ? "correct" : "incorrect");
   feedbackElement.textContent = isCorrect
     ? `Richtig! 50 Punkte + ${bonusPoints} Bonuspunkte`
     : `Falsch! Die richtige Antwort war: ${correctAnswer}`;
-  
-  feedbackElement.classList.add('show');
+
+  feedbackElement.classList.add("show");
 
   setTimeout(() => {
-    feedbackElement.classList.remove('show', 'correct', 'incorrect');
+    feedbackElement.classList.remove("show", "correct", "incorrect");
   }, 5000);
 }
 
@@ -125,23 +124,20 @@ function showFeedback(
 function updateUI(
   elements: FeedbackElements,
   question: { trivia: string },
-  album: { coverSrc: string; artist: string; album: string; year: string }
+  album: { coverSrc: string; artist: string; album: string; year: string },
 ) {
-  elements.overlayCover.src = album.coverSrc || '';
-  elements.artistElement.textContent = album.artist || '';
-  elements.albumElement.textContent = album.album || '';
-  elements.triviaElement.textContent = question.trivia || '';
-  elements.yearElement.textContent = album.year || '';
+  elements.overlayCover.src = album.coverSrc || "";
+  elements.artistElement.textContent = album.artist || "";
+  elements.albumElement.textContent = album.album || "";
+  elements.triviaElement.textContent = question.trivia || "";
+  elements.yearElement.textContent = album.year || "";
 }
 
 /**
  * Richtet das Overlay ein
  */
-function setupOverlay(
-  overlayElement: HTMLElement,
-  onNextRound: () => void
-) {
-  overlayElement.classList.remove('hidden');
+function setupOverlay(overlayElement: HTMLElement, onNextRound: () => void) {
+  overlayElement.classList.remove("hidden");
 }
 
 /**
@@ -150,24 +146,24 @@ function setupOverlay(
 export function initializeFeedbackElements(): FeedbackElements | null {
   try {
     const elements = {
-      feedbackElement: document.getElementById('feedback'),
-      overlayElement: document.getElementById('overlay'),
-      overlayCover: document.getElementById('overlay-cover'),
-      artistElement: document.getElementById('overlay-artist'),
-      albumElement: document.getElementById('overlay-album'),
-      triviaElement: document.getElementById('overlay-funfact'),
-      yearElement: document.getElementById('overlay-year'),
-      scoreElement: document.querySelector('.coinsCount'),
+      feedbackElement: document.getElementById("feedback"),
+      overlayElement: document.getElementById("overlay"),
+      overlayCover: document.getElementById("overlay-cover"),
+      artistElement: document.getElementById("overlay-artist"),
+      albumElement: document.getElementById("overlay-album"),
+      triviaElement: document.getElementById("overlay-funfact"),
+      yearElement: document.getElementById("overlay-year"),
+      scoreElement: document.querySelector(".coinsCount"),
     };
 
     // Prüfe, ob alle Elemente gefunden wurden
-    if (Object.values(elements).some(element => !element)) {
-      throw new Error('Nicht alle erforderlichen Elemente gefunden');
+    if (Object.values(elements).some((element) => !element)) {
+      throw new Error("Nicht alle erforderlichen Elemente gefunden");
     }
 
     return elements as FeedbackElements;
   } catch (error) {
-    console.error('Fehler beim Initialisieren der Feedback-Elemente:', error);
+    console.error("Fehler beim Initialisieren der Feedback-Elemente:", error);
     return null;
   }
 }
